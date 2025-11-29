@@ -99,17 +99,17 @@ def generate_portfolio_html(portfolio_config):
                     color: #1e293b;
                     line-height: 1.6;
                     background-color: white;
-                    width: 8.5in;
-                    height: 11in;
-                    padding: 0.5in;
-                    margin: 0 auto;
+                    margin: 0;
+                    padding: 0.4in;
+                    width: 100%;
                 }}
                 
                 .resume-container {{
-                    max-width: 8.5in;
+                    width: 100%;
                     background: white;
-                    padding: 20px;
-                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    padding: 0;
+                    margin: 0;
+                    box-shadow: none;
                 }}
                 
                 .header {{
@@ -140,6 +140,8 @@ def generate_portfolio_html(portfolio_config):
                 
                 .section {{
                     margin-bottom: 20px;
+                    page-break-inside: avoid;
+                    break-inside: avoid;
                 }}
                 
                 .section-title {{
@@ -1063,22 +1065,23 @@ def portfolio_preview_page():
         
         # Icon mapping for popular platforms with real SVG-like representations
         platform_icons = {
-            "linkedin": "in",
+            "linkedin": "💼",
             "github": "🐙",
             "instagram": "📸",
             "x": "𝕏",
-            "facebook": "f",
+            "twitter": "𝕏",
+            "facebook": "👍",
             "youtube": "▶️",
             "portfolio": "🌐",
             "email": "✉️",
             "website": "🌍",
-            "telegram": "📨",
-            "discord": "💬",
+            "telegram": "✈️",
+            "discord": "🎮",
             "reddit": "👽",
             "medium": "✍️"
             }
         
-        # Create social links with icons
+        # Create social links with icons and text
         social_links_html = ""
         for link in portfolio.get("socialLinks", []):
             name = link.get('name', '').lower()
@@ -1086,8 +1089,10 @@ def portfolio_preview_page():
             
             # Get icon based on platform name
             icon = platform_icons.get(name, "🔗")
+            link_text = link.get('name', 'Link')
             
-            social_links_html += f'<a href="{url}" style="display: inline-block; margin: 8px 12px; text-decoration: none; font-size: 24px;" title="{link.get("name")}">{icon}</a>'
+            social_links_html += f'<a href="{url}" style="display: inline-block; margin: 8px 12px; padding: 8px 12px; text-decoration: none; color: #4f46e5; border: 1px solid #e0e7ff; border-radius: 6px; background-color: #f8fafc;" title="{link_text}"><span style="margin-right: 6px;">{icon}</span>{link_text}</a>'
+        
         
         if social_links_html:
             st.markdown(f'<div style="text-align: center;">{social_links_html}</div>', unsafe_allow_html=True)

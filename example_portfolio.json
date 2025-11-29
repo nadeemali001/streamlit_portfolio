@@ -1,0 +1,156 @@
+{
+  "personalInfo": {
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "title": "Hello! I'm John Doe",
+    "profileImage": "https://via.placeholder.com/300",
+    "summary": "Full-stack developer with 5+ years of experience in building scalable web applications.",
+    "about": "I'm passionate about creating elegant solutions to complex problems. I love learning new technologies and sharing knowledge with the community."
+  },
+  "socialLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/johndoe"
+    },
+    {
+      "name": "LinkedIn",
+      "url": "https://linkedin.com/in/johndoe"
+    },
+    {
+      "name": "Twitter",
+      "url": "https://twitter.com/johndoe"
+    }
+  ],
+  "experience": {
+    "sectionTitle": "Experience",
+    "sectionImage": "",
+    "items": [
+      {
+        "title": "Senior Software Engineer",
+        "company": "Tech Company Inc.",
+        "period": "Jan 2021 - Present",
+        "description": [
+          "Led development of microservices architecture handling 1M+ daily requests",
+          "Mentored 5+ junior developers and conducted code reviews",
+          "Implemented CI/CD pipelines reducing deployment time by 80%"
+        ]
+      },
+      {
+        "title": "Full Stack Developer",
+        "company": "Startup XYZ",
+        "period": "Jun 2018 - Dec 2020",
+        "description": [
+          "Built responsive web applications using React and Node.js",
+          "Designed and optimized database schemas for better performance",
+          "Collaborated with product team to deliver features on time"
+        ]
+      }
+    ]
+  },
+  "skills": {
+    "sectionTitle": "Skills",
+    "sectionImage": "",
+    "categories": [
+      {
+        "title": "Frontend",
+        "icon": "code",
+        "items": "React, Vue.js, JavaScript, HTML, CSS, Tailwind CSS"
+      },
+      {
+        "title": "Backend",
+        "icon": "server",
+        "items": "Node.js, Python, Django, PostgreSQL, MongoDB"
+      },
+      {
+        "title": "Tools & Platforms",
+        "icon": "tool",
+        "items": "Docker, Kubernetes, AWS, Git, CI/CD"
+      }
+    ]
+  },
+  "projects": {
+    "sectionTitle": "Projects",
+    "items": [
+      {
+        "title": "Portfolio Builder",
+        "url": "https://github.com/johndoe/portfolio-builder",
+        "description": "A Streamlit app that allows users to build and customize their professional portfolios with modular components."
+      },
+      {
+        "title": "Task Management App",
+        "url": "https://github.com/johndoe/task-app",
+        "description": "Full-stack application built with React and Django for managing tasks and teams. Features real-time collaboration."
+      },
+      {
+        "title": "Data Analysis Tool",
+        "url": null,
+        "description": "Python-based tool for analyzing and visualizing large datasets with interactive dashboards using Plotly."
+      }
+    ]
+  },
+  "education": {
+    "sectionTitle": "Education",
+    "sectionImage": "",
+    "items": [
+      {
+        "title": "Master of Science in Computer Science",
+        "period": "2016 - 2018",
+        "description": "State University - GPA: 3.9/4.0, Specialization in Distributed Systems"
+      },
+      {
+        "title": "Bachelor of Science in Computer Engineering",
+        "period": "2012 - 2016",
+        "description": "State University - GPA: 3.8/4.0, Dean's List all semesters"
+      }
+    ]
+  },
+  "certificates": {
+    "sectionTitle": "Certifications",
+    "items": [
+      {
+        "title": "AWS Certified Solutions Architect",
+        "issuer": "Amazon Web Services",
+        "date": "2022",
+        "image": null,
+        "pdf": null
+      },
+      {
+        "title": "Kubernetes Administrator",
+        "issuer": "Linux Foundation",
+        "date": "2021",
+        "image": null,
+        "pdf": null
+      }
+    ]
+  },
+  "resume": {
+    "sectionTitle": "Download Resume",
+    "files": [
+      {
+        "name": "Download Resume (PDF)",
+        "file": "https://example.com/resume.pdf"
+      }
+    ]
+  },
+  "modules": [
+    "personal_info",
+    "experience",
+    "skills",
+    "projects",
+    "education",
+    "certificates",
+    "social_links"
+  ],
+  "theme": {
+    "colors": {
+      "primary": "#6366f1",
+      "primaryDark": "#4f46e5",
+      "secondary": "#8b5cf6",
+      "accent": "#06b6d4",
+      "textDark": "#1e293b",
+      "textLight": "#64748b",
+      "bgLight": "#f8fafc",
+      "bgWhite": "#ffffff"
+    }
+  }
+}

@@ -26,7 +26,7 @@ from components.portfolio_editors import (
 
 
 def generate_portfolio_pdf(portfolio_config):
-    """Generate PDF from portfolio configuration"""
+    """Generate PDF from portfolio configuration with exact data shown in Streamlit"""
     try:
         pdf_buffer = BytesIO()
         doc = SimpleDocTemplate(pdf_buffer, pagesize=A4, topMargin=0.5*inch, bottomMargin=0.5*inch)
@@ -37,99 +37,186 @@ def generate_portfolio_pdf(portfolio_config):
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
-            fontSize=24,
+            fontSize=26,
             textColor=colors.HexColor('#4f46e5'),
-            spaceAfter=12,
+            spaceAfter=6,
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
+        )
+        subtitle_style = ParagraphStyle(
+            'Subtitle',
+            parent=styles['Normal'],
+            fontSize=12,
+            textColor=colors.HexColor('#64748b'),
+            spaceAfter=12,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Oblique'
         )
         heading_style = ParagraphStyle(
             'CustomHeading',
             parent=styles['Heading2'],
             fontSize=14,
             textColor=colors.HexColor('#4f46e5'),
-            spaceAfter=8,
-            spaceBefore=8,
+            spaceAfter=10,
+            spaceBefore=12,
+            fontName='Helvetica-Bold'
+        )
+        subheading_style = ParagraphStyle(
+            'SubHeading',
+            parent=styles['Heading3'],
+            fontSize=11,
+            textColor=colors.HexColor('#1e293b'),
+            spaceAfter=4,
             fontName='Helvetica-Bold'
         )
         normal_style = styles['Normal']
+        small_style = ParagraphStyle(
+            'SmallText',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor('#64748b')
+        )
         
         # Personal Info
         personal_info = portfolio_config.get("personalInfo", {})
-        name = personal_info.get('name', 'Portfolio')
+        name = personal_info.get('name', 'Your Name')
+        title = personal_info.get('title', 'Professional')
+        
         story.append(Paragraph(name, title_style))
+        story.append(Paragraph(title, subtitle_style))
         
-        if personal_info.get('title'):
-            story.append(Paragraph(f"<i>{personal_info.get('title')}</i>", heading_style))
-        
-        contact_info = []
+        # Contact Info
+        contact_parts = []
         if personal_info.get('email'):
-            contact_info.append(f"📧 {personal_info.get('email')}")
+            contact_parts.append(f"📧 {personal_info.get('email')}")
         if personal_info.get('phone'):
-            contact_info.append(f"📞 {personal_info.get('phone')}")
-        if contact_info:
-            story.append(Paragraph(" | ".join(contact_info), normal_style))
+            contact_parts.append(f"📞 {personal_info.get('phone')}")
+        if contact_parts:
+            story.append(Paragraph(" | ".join(contact_parts), small_style))
         
-        if personal_info.get('summary'):
-            story.append(Spacer(1, 0.2*inch))
-            story.append(Paragraph(personal_info.get('summary'), normal_style))
+        # Summary and About
+        if personal_info.get('summary') or personal_info.get('about'):
+            story.append(Spacer(1, 0.15*inch))
+            if personal_info.get('summary'):
+                story.append(Paragraph(f"<b>Summary:</b> {personal_info.get('summary')}", normal_style))
+            if personal_info.get('about'):
+                story.append(Paragraph(f"<b>About:</b> {personal_info.get('about')}", normal_style))
         
-        story.append(Spacer(1, 0.3*inch))
+        story.append(Spacer(1, 0.2*inch))
         
-        # Experience
-        if "experience" in portfolio_config.get("modules", []):
+        # Experience Section
+        modules = portfolio_config.get("modules", [])
+        if "experience" in modules:
             experience = portfolio_config.get("experience", {})
             if experience.get("items"):
-                story.append(Paragraph("💼 Experience", heading_style))
+                story.append(Paragraph("💼 EXPERIENCE", heading_style))
                 for exp in experience.get("items", []):
-                    exp_text = f"<b>{exp.get('title', 'N/A')}</b> at <b>{exp.get('company', 'N/A')}</b>"
-                    story.append(Paragraph(exp_text, normal_style))
-                    story.append(Paragraph(f"<i>{exp.get('period', 'N/A')}</i>", normal_style))
+                    # Job title and company
+                    job_text = f"<b>{exp.get('title', 'N/A')}</b> at <b>{exp.get('company', 'N/A')}</b>"
+                    story.append(Paragraph(job_text, subheading_style))
+                    # Period
+                    story.append(Paragraph(f"<i>{exp.get('period', 'N/A')}</i>", small_style))
+                    # Description
                     for desc in exp.get("description", []):
                         story.append(Paragraph(f"• {desc}", normal_style))
                     story.append(Spacer(1, 0.1*inch))
+                story.append(Spacer(1, 0.1*inch))
         
-        # Skills
-        if "skills" in portfolio_config.get("modules", []):
+        # Skills Section
+        if "skills" in modules:
             skills = portfolio_config.get("skills", {})
             if skills.get("categories"):
-                story.append(Paragraph("🛠️ Skills", heading_style))
+                story.append(Paragraph("🛠️ SKILLS", heading_style))
                 for category in skills.get("categories", []):
                     icon = category.get('icon', '🔧')
-                    title = category.get('title', 'N/A')
+                    cat_title = category.get('title', 'Skills')
                     items = category.get('items', '')
-                    story.append(Paragraph(f"<b>{icon} {title}</b>", normal_style))
+                    
+                    # Category title with icon
+                    story.append(Paragraph(f"<b>{icon} {cat_title}</b>", subheading_style))
+                    
+                    # Skills as comma-separated list
                     if items:
                         skills_list = ", ".join([s.strip() for s in items.split(',') if s.strip()])
                         story.append(Paragraph(skills_list, normal_style))
-                    story.append(Spacer(1, 0.1*inch))
+                    story.append(Spacer(1, 0.08*inch))
+                story.append(Spacer(1, 0.1*inch))
         
-        # Education
-        if "education" in portfolio_config.get("modules", []):
+        # Projects Section
+        if "projects" in modules:
+            projects = portfolio_config.get("projects", {})
+            if projects.get("items"):
+                story.append(Paragraph("📁 PROJECTS", heading_style))
+                for project in projects.get("items", []):
+                    # Project title
+                    proj_title = project.get('title', 'N/A')
+                    if project.get('url'):
+                        story.append(Paragraph(f"<b><u>{proj_title}</u></b> - {project.get('url')}", subheading_style))
+                    else:
+                        story.append(Paragraph(f"<b>{proj_title}</b>", subheading_style))
+                    
+                    # Project description
+                    if project.get('description'):
+                        story.append(Paragraph(project.get('description'), normal_style))
+                    story.append(Spacer(1, 0.1*inch))
+                story.append(Spacer(1, 0.1*inch))
+        
+        # Education Section
+        if "education" in modules:
             education = portfolio_config.get("education", {})
             if education.get("items"):
-                story.append(Paragraph("🎓 Education", heading_style))
+                story.append(Paragraph("🎓 EDUCATION", heading_style))
                 for edu in education.get("items", []):
-                    story.append(Paragraph(f"<b>{edu.get('title', 'N/A')}</b>", normal_style))
-                    story.append(Paragraph(f"<i>{edu.get('period', 'N/A')}</i>", normal_style))
-                    story.append(Paragraph(edu.get("description", ""), normal_style))
+                    # Degree/Title
+                    story.append(Paragraph(f"<b>{edu.get('title', 'N/A')}</b>", subheading_style))
+                    # Period
+                    story.append(Paragraph(f"<i>{edu.get('period', 'N/A')}</i>", small_style))
+                    # Description
+                    if edu.get('description'):
+                        story.append(Paragraph(edu.get('description'), normal_style))
                     story.append(Spacer(1, 0.1*inch))
+                story.append(Spacer(1, 0.1*inch))
         
-        # Certificates
-        if "certificates" in portfolio_config.get("modules", []):
+        # Certificates Section
+        if "certificates" in modules:
             certificates = portfolio_config.get("certificates", {})
             if certificates.get("items"):
-                story.append(Paragraph("🏆 Certificates", heading_style))
+                story.append(Paragraph("🏆 CERTIFICATES", heading_style))
                 for cert in certificates.get("items", []):
-                    story.append(Paragraph(f"<b>{cert.get('title', 'N/A')}</b>", normal_style))
-                    story.append(Paragraph(f"Issuer: {cert.get('issuer', 'N/A')}", normal_style))
-                    if cert.get("date"):
-                        story.append(Paragraph(f"Date: {cert.get('date')}", normal_style))
+                    # Certificate title
+                    story.append(Paragraph(f"<b>{cert.get('title', 'N/A')}</b>", subheading_style))
+                    # Issuer
+                    story.append(Paragraph(f"<b>Issuer:</b> {cert.get('issuer', 'N/A')}", normal_style))
+                    # Date
+                    if cert.get('date'):
+                        story.append(Paragraph(f"<b>Date:</b> 📅 {cert.get('date')}", normal_style))
                     story.append(Spacer(1, 0.1*inch))
+                story.append(Spacer(1, 0.1*inch))
+        
+        # Social Links Section
+        if portfolio_config.get("socialLinks"):
+            story.append(Paragraph("🔗 CONNECT", heading_style))
+            social_links = []
+            for link in portfolio_config.get("socialLinks", []):
+                name = link.get('name', '')
+                url = link.get('url', '#')
+                social_links.append(f"{name}: {url}")
+            
+            for link in social_links:
+                story.append(Paragraph(link, normal_style))
+            story.append(Spacer(1, 0.2*inch))
         
         # Footer
-        story.append(Spacer(1, 0.2*inch))
-        story.append(Paragraph("Built with ❤️ using Streamlit", normal_style))
+        story.append(Paragraph("_" * 80, small_style))
+        story.append(Spacer(1, 0.1*inch))
+        footer_text = "Built with ❤️ using Streamlit Portfolio Builder"
+        story.append(Paragraph(footer_text, ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor('#888888'),
+            alignment=TA_CENTER
+        )))
         
         # Build PDF
         doc.build(story)

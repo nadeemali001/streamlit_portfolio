@@ -238,6 +238,15 @@ def generate_portfolio_html(portfolio_config):
                     font-size: 12px;
                     color: #4f46e5;
                     text-decoration: none;
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    transition: all 0.3s ease;
+                }
+                
+                .social-link:hover {
+                    background-color: #e0e7ff;
+                    color: #2d3a9f;
+                    text-decoration: underline;
                 }
                 
                 .social-icon {
@@ -363,9 +372,11 @@ def generate_portfolio_html(portfolio_config):
             html += '<div class="social-links">'
             for link in portfolio_config.get("socialLinks", []):
                 name = link.get('name', '').lower()
-                url = link.get('url', '#')
+                url = link.get('url', '#').strip()
+                if not url or url == '#':
+                    url = '#'
                 icon = platform_icons.get(name, '🔗')
-                html += '<a href="' + escape_html(url) + '" class="social-link"><span class="social-icon">' + icon + '</span> ' + escape_html(link.get("name")) + '</a>'
+                html += '<a href="' + url + '" target="_blank" class="social-link"><span class="social-icon">' + icon + '</span> ' + escape_html(link.get("name")) + '</a>'
             html += '</div></div>'
         
         # Footer

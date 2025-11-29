@@ -98,18 +98,18 @@ def generate_portfolio_html(portfolio_config):
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Portfolio Resume</title>
             <style>
-                * {
+                * {{
                     margin: 0;
                     padding: 0;
                     box-sizing: border-box;
-                }
+                }}
                 
-                @page {
+                @page {{
                     size: A4;
                     margin: 0.5in;
-                }
+                }}
                 
-                body {
+                body {{
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     color: #1e293b;
                     line-height: 1.6;
@@ -118,46 +118,46 @@ def generate_portfolio_html(portfolio_config):
                     height: 11in;
                     padding: 0.5in;
                     margin: 0 auto;
-                }
+                }}
                 
-                .resume-container {
+                .resume-container {{
                     max-width: 8.5in;
                     background: white;
                     padding: 20px;
                     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                }
+                }}
                 
-                .header {
+                .header {{
                     text-align: center;
                     border-bottom: 3px solid #4f46e5;
                     padding-bottom: 15px;
                     margin-bottom: 20px;
-                }
+                }}
                 
-                .name {
+                .name {{
                     font-size: 32px;
                     font-weight: bold;
                     color: #4f46e5;
                     margin-bottom: 5px;
-                }
+                }}
                 
-                .title {
+                .title {{
                     font-size: 16px;
                     color: #64748b;
                     margin-bottom: 8px;
-                }
+                }}
                 
-                .contact-info {
+                .contact-info {{
                     font-size: 12px;
                     color: #475569;
                     margin-bottom: 5px;
-                }
+                }}
                 
-                .section {
+                .section {{
                     margin-bottom: 20px;
-                }
+                }}
                 
-                .section-title {
+                .section-title {{
                     font-size: 14px;
                     font-weight: bold;
                     color: white;
@@ -165,45 +165,45 @@ def generate_portfolio_html(portfolio_config):
                     padding: 8px 12px;
                     margin-bottom: 12px;
                     border-left: 4px solid #6366f1;
-                }
+                }}
                 
-                .item {
+                .item {{
                     margin-bottom: 12px;
                     padding-left: 10px;
                     border-left: 2px solid #e2e8f0;
-                }
+                }}
                 
-                .item-title {
+                .item-title {{
                     font-weight: bold;
                     color: #1e293b;
                     font-size: 13px;
-                }
+                }}
                 
-                .item-subtitle {
+                .item-subtitle {{
                     font-size: 11px;
                     color: #64748b;
                     font-style: italic;
                     margin-top: 2px;
-                }
+                }}
                 
-                .item-description {
+                .item-description {{
                     font-size: 12px;
                     color: #475569;
                     margin-top: 5px;
-                }
+                }}
                 
-                .item-description li {
+                .item-description li {{
                     margin-left: 20px;
                     margin-top: 3px;
-                }
+                }}
                 
-                .skills-container {
+                .skills-container {{
                     display: flex;
                     flex-wrap: wrap;
                     gap: 8px;
-                }
+                }}
                 
-                .skill-badge {
+                .skill-badge {{
                     background-color: #e0e7ff;
                     color: #4f46e5;
                     padding: 6px 12px;
@@ -211,27 +211,27 @@ def generate_portfolio_html(portfolio_config):
                     font-size: 12px;
                     font-weight: 500;
                     display: inline-block;
-                }
+                }}
                 
-                .skill-category {
+                .skill-category {{
                     margin-bottom: 10px;
-                }
+                }}
                 
-                .skill-category-title {
+                .skill-category-title {{
                     font-weight: bold;
                     color: #4f46e5;
                     font-size: 12px;
                     margin-bottom: 5px;
-                }
+                }}
                 
-                .social-links {
+                .social-links {{
                     display: flex;
                     flex-wrap: wrap;
                     gap: 15px;
                     margin-top: 10px;
-                }
+                }}
                 
-                .social-link {
+                .social-link {{
                     display: flex;
                     align-items: center;
                     gap: 5px;
@@ -241,33 +241,33 @@ def generate_portfolio_html(portfolio_config):
                     padding: 5px 10px;
                     border-radius: 5px;
                     transition: all 0.3s ease;
-                }
+                }}
                 
-                .social-link:hover {
+                .social-link:hover {{
                     background-color: #e0e7ff;
                     color: #2d3a9f;
                     text-decoration: underline;
-                }
+                }}
                 
-                .social-icon {
+                .social-icon {{
                     font-size: 16px;
-                }
+                }}
                 
-                .summary {
+                .summary {{
                     font-size: 12px;
                     color: #475569;
                     line-height: 1.5;
                     margin-top: 10px;
-                }
+                }}
                 
-                .footer {
+                .footer {{
                     text-align: center;
                     font-size: 10px;
                     color: #888;
                     margin-top: 30px;
                     border-top: 1px solid #e2e8f0;
                     padding-top: 10px;
-                }
+                }}
             </style>
         </head>
         <body>

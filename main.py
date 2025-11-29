@@ -40,21 +40,6 @@ def html_to_pdf_weasyprint(html_string):
         return None
 
 
-def html_to_pdf_weasyprint(html_string):
-    """Convert HTML string to PDF using WeasyPrint"""
-    try:
-        from weasyprint import HTML, CSS
-        from io import BytesIO
-        
-        pdf_buffer = BytesIO()
-        HTML(string=html_string).write_pdf(pdf_buffer)
-        pdf_buffer.seek(0)
-        return pdf_buffer.getvalue()
-    except Exception as e:
-        st.error(f"Error converting HTML to PDF: {str(e)}")
-        return None
-
-
 def generate_portfolio_html(portfolio_config):
     """Generate full HTML resume from portfolio configuration"""
     try:
@@ -939,7 +924,30 @@ def portfolio_preview_page():
     st.markdown("---")
     st.markdown("## Alternative Preview (Traditional Layout)")
     st.markdown("---")
-    st.markdown("---")
+    
+    # Personal Info
+    personal_info = portfolio.get("personalInfo", {})
+    if personal_info:
+        st.markdown(f"# {personal_info.get('name', 'Your Name')}")
+        if personal_info.get('title'):
+            st.markdown(f"## {personal_info.get('title')}")
+        
+        contact_items = []
+        if personal_info.get('email'):
+            contact_items.append(f"📧 {personal_info.get('email')}")
+        if personal_info.get('phone'):
+            contact_items.append(f"📱 {personal_info.get('phone')}")
+        if personal_info.get('location'):
+            contact_items.append(f"📍 {personal_info.get('location')}")
+        
+        if contact_items:
+            st.markdown(" | ".join(contact_items))
+        
+        if personal_info.get('summary') or personal_info.get('about'):
+            summary = personal_info.get('summary') or personal_info.get('about')
+            st.markdown(f"**About:** {summary}")
+        
+        st.markdown("---")
     
     modules = portfolio.get("modules", [])
     

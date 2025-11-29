@@ -88,9 +88,9 @@ def generate_portfolio_pdf(portfolio_config):
         # Contact Info
         contact_parts = []
         if personal_info.get('email'):
-            contact_parts.append(f"📧 {personal_info.get('email')}")
+            contact_parts.append(f"Email: {personal_info.get('email')}")
         if personal_info.get('phone'):
-            contact_parts.append(f"📞 {personal_info.get('phone')}")
+            contact_parts.append(f"Phone: {personal_info.get('phone')}")
         if contact_parts:
             story.append(Paragraph(" | ".join(contact_parts), small_style))
         
@@ -109,7 +109,7 @@ def generate_portfolio_pdf(portfolio_config):
         if "experience" in modules:
             experience = portfolio_config.get("experience", {})
             if experience.get("items"):
-                story.append(Paragraph("💼 EXPERIENCE", heading_style))
+                story.append(Paragraph("EXPERIENCE", heading_style))
                 for exp in experience.get("items", []):
                     # Job title and company
                     job_text = f"<b>{exp.get('title', 'N/A')}</b> at <b>{exp.get('company', 'N/A')}</b>"
@@ -126,14 +126,13 @@ def generate_portfolio_pdf(portfolio_config):
         if "skills" in modules:
             skills = portfolio_config.get("skills", {})
             if skills.get("categories"):
-                story.append(Paragraph("🛠️ SKILLS", heading_style))
+                story.append(Paragraph("SKILLS", heading_style))
                 for category in skills.get("categories", []):
-                    icon = category.get('icon', '🔧')
                     cat_title = category.get('title', 'Skills')
                     items = category.get('items', '')
                     
-                    # Category title with icon
-                    story.append(Paragraph(f"<b>{icon} {cat_title}</b>", subheading_style))
+                    # Category title
+                    story.append(Paragraph(f"<b>{cat_title}</b>", subheading_style))
                     
                     # Skills as comma-separated list
                     if items:
@@ -146,7 +145,7 @@ def generate_portfolio_pdf(portfolio_config):
         if "projects" in modules:
             projects = portfolio_config.get("projects", {})
             if projects.get("items"):
-                story.append(Paragraph("📁 PROJECTS", heading_style))
+                story.append(Paragraph("PROJECTS", heading_style))
                 for project in projects.get("items", []):
                     # Project title
                     proj_title = project.get('title', 'N/A')
@@ -165,7 +164,7 @@ def generate_portfolio_pdf(portfolio_config):
         if "education" in modules:
             education = portfolio_config.get("education", {})
             if education.get("items"):
-                story.append(Paragraph("🎓 EDUCATION", heading_style))
+                story.append(Paragraph("EDUCATION", heading_style))
                 for edu in education.get("items", []):
                     # Degree/Title
                     story.append(Paragraph(f"<b>{edu.get('title', 'N/A')}</b>", subheading_style))
@@ -181,7 +180,7 @@ def generate_portfolio_pdf(portfolio_config):
         if "certificates" in modules:
             certificates = portfolio_config.get("certificates", {})
             if certificates.get("items"):
-                story.append(Paragraph("🏆 CERTIFICATES", heading_style))
+                story.append(Paragraph("CERTIFICATES", heading_style))
                 for cert in certificates.get("items", []):
                     # Certificate title
                     story.append(Paragraph(f"<b>{cert.get('title', 'N/A')}</b>", subheading_style))
@@ -189,13 +188,13 @@ def generate_portfolio_pdf(portfolio_config):
                     story.append(Paragraph(f"<b>Issuer:</b> {cert.get('issuer', 'N/A')}", normal_style))
                     # Date
                     if cert.get('date'):
-                        story.append(Paragraph(f"<b>Date:</b> 📅 {cert.get('date')}", normal_style))
+                        story.append(Paragraph(f"<b>Date:</b> {cert.get('date')}", normal_style))
                     story.append(Spacer(1, 0.1*inch))
                 story.append(Spacer(1, 0.1*inch))
         
         # Social Links Section
         if portfolio_config.get("socialLinks"):
-            story.append(Paragraph("🔗 CONNECT", heading_style))
+            story.append(Paragraph("SOCIAL LINKS", heading_style))
             social_links = []
             for link in portfolio_config.get("socialLinks", []):
                 name = link.get('name', '')
@@ -209,7 +208,7 @@ def generate_portfolio_pdf(portfolio_config):
         # Footer
         story.append(Paragraph("_" * 80, small_style))
         story.append(Spacer(1, 0.1*inch))
-        footer_text = "Built with ❤️ using Streamlit Portfolio Builder"
+        footer_text = "Built with Streamlit Portfolio Builder"
         story.append(Paragraph(footer_text, ParagraphStyle(
             'Footer',
             parent=styles['Normal'],
@@ -457,26 +456,28 @@ def portfolio_preview_page():
             st.session_state.show_preview = False
             st.rerun()
         
-        if st.button("📥 Download as JSON"):
+        if st.button("Download JSON"):
             json_str = json.dumps(st.session_state.portfolio_config, indent=2)
             st.download_button(
-                label="Download Config",
+                label="Download JSON Config",
                 data=json_str,
                 file_name=f"{st.session_state.current_user}_portfolio.json",
-                mime="application/json"
+                mime="application/json",
+                use_container_width=True
             )
         
-        if st.button("� Download as PDF"):
-            pdf_data = generate_portfolio_pdf(st.session_state.portfolio_config)
-            if pdf_data:
+        pdf_data = generate_portfolio_pdf(st.session_state.portfolio_config)
+        if pdf_data:
+            if st.button("Download PDF"):
                 st.download_button(
-                    label="Download Portfolio PDF",
+                    label="Download PDF Portfolio",
                     data=pdf_data,
                     file_name=f"{st.session_state.current_user}_portfolio.pdf",
-                    mime="application/pdf"
+                    mime="application/pdf",
+                    use_container_width=True
                 )
         
-        if st.button("�🚪 Logout"):
+        if st.button("Logout"):
             st.session_state.user_logged_in = False
             st.session_state.current_user = None
             st.session_state.portfolio_config = None

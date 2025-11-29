@@ -5,6 +5,13 @@ import streamlit as st
 import json
 from pathlib import Path
 import sys
+from io import BytesIO
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
 # Add app to path
 sys.path.insert(0, str(Path(__file__).parent / "app"))
@@ -16,6 +23,121 @@ from components.portfolio_editors import (
     projects_editor, education_editor, certificates_editor,
     social_links_editor, theme_editor
 )
+
+
+def generate_portfolio_pdf(portfolio_config):
+    """Generate PDF from portfolio configuration"""
+    try:
+        pdf_buffer = BytesIO()
+        doc = SimpleDocTemplate(pdf_buffer, pagesize=A4, topMargin=0.5*inch, bottomMargin=0.5*inch)
+        story = []
+        
+        # Styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=colors.HexColor('#4f46e5'),
+            spaceAfter=12,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        )
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('#4f46e5'),
+            spaceAfter=8,
+            spaceBefore=8,
+            fontName='Helvetica-Bold'
+        )
+        normal_style = styles['Normal']
+        
+        # Personal Info
+        personal_info = portfolio_config.get("personalInfo", {})
+        name = personal_info.get('name', 'Portfolio')
+        story.append(Paragraph(name, title_style))
+        
+        if personal_info.get('title'):
+            story.append(Paragraph(f"<i>{personal_info.get('title')}</i>", heading_style))
+        
+        contact_info = []
+        if personal_info.get('email'):
+            contact_info.append(f"📧 {personal_info.get('email')}")
+        if personal_info.get('phone'):
+            contact_info.append(f"📞 {personal_info.get('phone')}")
+        if contact_info:
+            story.append(Paragraph(" | ".join(contact_info), normal_style))
+        
+        if personal_info.get('summary'):
+            story.append(Spacer(1, 0.2*inch))
+            story.append(Paragraph(personal_info.get('summary'), normal_style))
+        
+        story.append(Spacer(1, 0.3*inch))
+        
+        # Experience
+        if "experience" in portfolio_config.get("modules", []):
+            experience = portfolio_config.get("experience", {})
+            if experience.get("items"):
+                story.append(Paragraph("💼 Experience", heading_style))
+                for exp in experience.get("items", []):
+                    exp_text = f"<b>{exp.get('title', 'N/A')}</b> at <b>{exp.get('company', 'N/A')}</b>"
+                    story.append(Paragraph(exp_text, normal_style))
+                    story.append(Paragraph(f"<i>{exp.get('period', 'N/A')}</i>", normal_style))
+                    for desc in exp.get("description", []):
+                        story.append(Paragraph(f"• {desc}", normal_style))
+                    story.append(Spacer(1, 0.1*inch))
+        
+        # Skills
+        if "skills" in portfolio_config.get("modules", []):
+            skills = portfolio_config.get("skills", {})
+            if skills.get("categories"):
+                story.append(Paragraph("🛠️ Skills", heading_style))
+                for category in skills.get("categories", []):
+                    icon = category.get('icon', '🔧')
+                    title = category.get('title', 'N/A')
+                    items = category.get('items', '')
+                    story.append(Paragraph(f"<b>{icon} {title}</b>", normal_style))
+                    if items:
+                        skills_list = ", ".join([s.strip() for s in items.split(',') if s.strip()])
+                        story.append(Paragraph(skills_list, normal_style))
+                    story.append(Spacer(1, 0.1*inch))
+        
+        # Education
+        if "education" in portfolio_config.get("modules", []):
+            education = portfolio_config.get("education", {})
+            if education.get("items"):
+                story.append(Paragraph("🎓 Education", heading_style))
+                for edu in education.get("items", []):
+                    story.append(Paragraph(f"<b>{edu.get('title', 'N/A')}</b>", normal_style))
+                    story.append(Paragraph(f"<i>{edu.get('period', 'N/A')}</i>", normal_style))
+                    story.append(Paragraph(edu.get("description", ""), normal_style))
+                    story.append(Spacer(1, 0.1*inch))
+        
+        # Certificates
+        if "certificates" in portfolio_config.get("modules", []):
+            certificates = portfolio_config.get("certificates", {})
+            if certificates.get("items"):
+                story.append(Paragraph("🏆 Certificates", heading_style))
+                for cert in certificates.get("items", []):
+                    story.append(Paragraph(f"<b>{cert.get('title', 'N/A')}</b>", normal_style))
+                    story.append(Paragraph(f"Issuer: {cert.get('issuer', 'N/A')}", normal_style))
+                    if cert.get("date"):
+                        story.append(Paragraph(f"Date: {cert.get('date')}", normal_style))
+                    story.append(Spacer(1, 0.1*inch))
+        
+        # Footer
+        story.append(Spacer(1, 0.2*inch))
+        story.append(Paragraph("Built with ❤️ using Streamlit", normal_style))
+        
+        # Build PDF
+        doc.build(story)
+        pdf_buffer.seek(0)
+        return pdf_buffer.getvalue()
+    except Exception as e:
+        st.error(f"Error generating PDF: {str(e)}")
+        return None
 
 
 # Page configuration
@@ -257,7 +379,17 @@ def portfolio_preview_page():
                 mime="application/json"
             )
         
-        if st.button("🚪 Logout"):
+        if st.button("� Download as PDF"):
+            pdf_data = generate_portfolio_pdf(st.session_state.portfolio_config)
+            if pdf_data:
+                st.download_button(
+                    label="Download Portfolio PDF",
+                    data=pdf_data,
+                    file_name=f"{st.session_state.current_user}_portfolio.pdf",
+                    mime="application/pdf"
+                )
+        
+        if st.button("�🚪 Logout"):
             st.session_state.user_logged_in = False
             st.session_state.current_user = None
             st.session_state.portfolio_config = None

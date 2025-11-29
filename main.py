@@ -25,6 +25,351 @@ from components.portfolio_editors import (
 )
 
 
+def html_to_pdf_weasyprint(html_string):
+    """Convert HTML string to PDF using WeasyPrint"""
+    try:
+        from weasyprint import HTML, CSS
+        from io import BytesIO
+        
+        pdf_buffer = BytesIO()
+        HTML(string=html_string).write_pdf(pdf_buffer)
+        pdf_buffer.seek(0)
+        return pdf_buffer.getvalue()
+    except Exception as e:
+        st.error(f"Error converting HTML to PDF: {str(e)}")
+        return None
+
+
+def html_to_pdf_weasyprint(html_string):
+    """Convert HTML string to PDF using WeasyPrint"""
+    try:
+        from weasyprint import HTML, CSS
+        from io import BytesIO
+        
+        pdf_buffer = BytesIO()
+        HTML(string=html_string).write_pdf(pdf_buffer)
+        pdf_buffer.seek(0)
+        return pdf_buffer.getvalue()
+    except Exception as e:
+        st.error(f"Error converting HTML to PDF: {str(e)}")
+        return None
+
+
+def generate_portfolio_html(portfolio_config):
+    """Generate full HTML resume from portfolio configuration"""
+    try:
+        personal_info = portfolio_config.get("personalInfo", {})
+        modules = portfolio_config.get("modules", [])
+        
+        # Platform icon mapping
+        platform_icons = {
+            "linkedin": "💼",
+            "github": "🐙",
+            "instagram": "📸",
+            "twitter": "𝕏",
+            "x": "𝕏",
+            "facebook": "👍",
+            "youtube": "▶️",
+            "portfolio": "🌐",
+            "email": "✉️",
+            "website": "🌍",
+            "telegram": "✈️",
+            "discord": "🎮",
+            "reddit": "👽",
+        }
+        
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Portfolio Resume</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                @page {
+                    size: A4;
+                    margin: 0.5in;
+                }
+                
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    color: #1e293b;
+                    line-height: 1.6;
+                    background-color: white;
+                    width: 8.5in;
+                    height: 11in;
+                    padding: 0.5in;
+                    margin: 0 auto;
+                }
+                
+                .resume-container {
+                    max-width: 8.5in;
+                    background: white;
+                    padding: 20px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+                
+                .header {
+                    text-align: center;
+                    border-bottom: 3px solid #4f46e5;
+                    padding-bottom: 15px;
+                    margin-bottom: 20px;
+                }
+                
+                .name {
+                    font-size: 32px;
+                    font-weight: bold;
+                    color: #4f46e5;
+                    margin-bottom: 5px;
+                }
+                
+                .title {
+                    font-size: 16px;
+                    color: #64748b;
+                    margin-bottom: 8px;
+                }
+                
+                .contact-info {
+                    font-size: 12px;
+                    color: #475569;
+                    margin-bottom: 5px;
+                }
+                
+                .section {
+                    margin-bottom: 20px;
+                }
+                
+                .section-title {
+                    font-size: 14px;
+                    font-weight: bold;
+                    color: white;
+                    background-color: #4f46e5;
+                    padding: 8px 12px;
+                    margin-bottom: 12px;
+                    border-left: 4px solid #6366f1;
+                }
+                
+                .item {
+                    margin-bottom: 12px;
+                    padding-left: 10px;
+                    border-left: 2px solid #e2e8f0;
+                }
+                
+                .item-title {
+                    font-weight: bold;
+                    color: #1e293b;
+                    font-size: 13px;
+                }
+                
+                .item-subtitle {
+                    font-size: 11px;
+                    color: #64748b;
+                    font-style: italic;
+                    margin-top: 2px;
+                }
+                
+                .item-description {
+                    font-size: 12px;
+                    color: #475569;
+                    margin-top: 5px;
+                }
+                
+                .item-description li {
+                    margin-left: 20px;
+                    margin-top: 3px;
+                }
+                
+                .skills-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                
+                .skill-badge {
+                    background-color: #e0e7ff;
+                    color: #4f46e5;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    display: inline-block;
+                }
+                
+                .skill-category {
+                    margin-bottom: 10px;
+                }
+                
+                .skill-category-title {
+                    font-weight: bold;
+                    color: #4f46e5;
+                    font-size: 12px;
+                    margin-bottom: 5px;
+                }
+                
+                .social-links {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                    margin-top: 10px;
+                }
+                
+                .social-link {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    font-size: 12px;
+                    color: #4f46e5;
+                    text-decoration: none;
+                }
+                
+                .social-icon {
+                    font-size: 16px;
+                }
+                
+                .summary {
+                    font-size: 12px;
+                    color: #475569;
+                    line-height: 1.5;
+                    margin-top: 10px;
+                }
+                
+                .footer {
+                    text-align: center;
+                    font-size: 10px;
+                    color: #888;
+                    margin-top: 30px;
+                    border-top: 1px solid #e2e8f0;
+                    padding-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="resume-container">
+                <!-- Header -->
+                <div class="header">
+                    <div class="name">{name}</div>
+                    <div class="title">{title}</div>
+                    <div class="contact-info">{contact_info}</div>
+                </div>
+        """.format(
+            name=personal_info.get('name', 'Your Name'),
+            title=personal_info.get('title', 'Professional'),
+            contact_info=' | '.join([
+                f"{personal_info.get('email')}" if personal_info.get('email') else '',
+                f"{personal_info.get('phone')}" if personal_info.get('phone') else ''
+            ]).replace(' | |', ' | ').strip(' |')
+        )
+        
+        # Summary Section
+        if personal_info.get('summary') or personal_info.get('about'):
+            summary = personal_info.get('summary') or personal_info.get('about')
+            html += f'<div class="section"><div class="summary">{summary}</div></div>'
+        
+        # Experience
+        if "experience" in modules:
+            experience = portfolio_config.get("experience", {})
+            if experience.get("items"):
+                html += '<div class="section">'
+                html += '<div class="section-title">EXPERIENCE</div>'
+                for exp in experience.get("items", []):
+                    html += f'''
+                    <div class="item">
+                        <div class="item-title">{exp.get('title', 'N/A')} @ {exp.get('company', 'N/A')}</div>
+                        <div class="item-subtitle">{exp.get('period', 'N/A')}</div>
+                        <div class="item-description">
+                            <ul>
+                    '''
+                    for desc in exp.get("description", []):
+                        html += f'<li>{desc}</li>'
+                    html += '</ul></div></div>'
+                html += '</div>'
+        
+        # Skills
+        if "skills" in modules:
+            skills = portfolio_config.get("skills", {})
+            if skills.get("categories"):
+                html += '<div class="section">'
+                html += '<div class="section-title">SKILLS</div>'
+                for category in skills.get("categories", []):
+                    cat_title = category.get('title', 'Skills')
+                    items = category.get('items', '')
+                    html += '<div class="skill-category"><div class="skill-category-title">' + cat_title + '</div><div class="skills-container">'
+                    if items:
+                        for skill in items.split(','):
+                            skill = skill.strip()
+                            if skill:
+                                html += f'<span class="skill-badge">{skill}</span>'
+                    html += '</div></div>'
+                html += '</div>'
+        
+        # Projects
+        if "projects" in modules:
+            projects = portfolio_config.get("projects", {})
+            if projects.get("items"):
+                html += '<div class="section"><div class="section-title">PROJECTS</div>'
+                for project in projects.get("items", []):
+                    html += '<div class="item"><div class="item-title">' + project.get('title', 'N/A') + '</div>'
+                    if project.get('url'):
+                        html += '<div class="item-subtitle">' + project.get("url") + '</div>'
+                    if project.get('description'):
+                        html += '<div class="item-description">' + project.get("description") + '</div>'
+                    html += '</div>'
+                html += '</div>'
+        
+        # Education
+        if "education" in modules:
+            education = portfolio_config.get("education", {})
+            if education.get("items"):
+                html += '<div class="section"><div class="section-title">EDUCATION</div>'
+                for edu in education.get("items", []):
+                    html += '<div class="item"><div class="item-title">' + edu.get('title', 'N/A') + '</div>'
+                    html += '<div class="item-subtitle">' + edu.get('period', 'N/A') + '</div>'
+                    if edu.get('description'):
+                        html += '<div class="item-description">' + edu.get("description") + '</div>'
+                    html += '</div>'
+                html += '</div>'
+        
+        # Certificates
+        if "certificates" in modules:
+            certificates = portfolio_config.get("certificates", {})
+            if certificates.get("items"):
+                html += '<div class="section"><div class="section-title">CERTIFICATES</div>'
+                for cert in certificates.get("items", []):
+                    html += '<div class="item"><div class="item-title">' + cert.get('title', 'N/A') + '</div>'
+                    html += '<div class="item-subtitle">Issuer: ' + cert.get('issuer', 'N/A') + '</div>'
+                    if cert.get('date'):
+                        html += '<div class="item-subtitle">Date: ' + cert.get("date") + '</div>'
+                    html += '</div>'
+                html += '</div>'
+        
+        # Social Links
+        if portfolio_config.get("socialLinks"):
+            html += '<div class="section">'
+            html += '<div class="section-title">CONNECT</div>'
+            html += '<div class="social-links">'
+            for link in portfolio_config.get("socialLinks", []):
+                name = link.get('name', '').lower()
+                url = link.get('url', '#')
+                icon = platform_icons.get(name, '🔗')
+                html += f'<a href="{url}" class="social-link"><span class="social-icon">{icon}</span> {link.get("name")}</a>'
+            html += '</div></div>'
+        
+        # Footer
+        html += '<div class="footer">Generated with Streamlit Portfolio Builder</div>'
+        html += '</div></body></html>'
+        
+        return html
+    except Exception as e:
+        st.error(f"Error generating HTML: {str(e)}")
+        return None
+
+
 def generate_portfolio_pdf(portfolio_config):
     """Generate visually rich PDF from portfolio configuration with colors, icons, and styling"""
     try:
@@ -509,78 +854,76 @@ def portfolio_editor_page():
 
 
 def portfolio_preview_page():
-    """Display portfolio preview"""
+    """Display portfolio preview with full HTML resume in A4 format"""
     
     with st.sidebar:
-        if st.button("← Back to Editor"):
+        st.subheader("Actions")
+        
+        if st.button("Back to Editor", use_container_width=True):
             st.session_state.show_preview = False
             st.rerun()
         
-        if st.button("Download JSON"):
+        st.divider()
+        
+        st.subheader("Downloads")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
             json_str = json.dumps(st.session_state.portfolio_config, indent=2)
             st.download_button(
-                label="Download JSON Config",
+                label="Download JSON",
                 data=json_str,
                 file_name=f"{st.session_state.current_user}_portfolio.json",
                 mime="application/json",
                 use_container_width=True
             )
         
-        pdf_data = generate_portfolio_pdf(st.session_state.portfolio_config)
-        if pdf_data:
-            if st.button("Download PDF"):
-                st.download_button(
-                    label="Download PDF Portfolio",
-                    data=pdf_data,
-                    file_name=f"{st.session_state.current_user}_portfolio.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
-                )
+        with col2:
+            # Generate HTML and convert to PDF
+            html_resume = generate_portfolio_html(st.session_state.portfolio_config)
+            if html_resume:
+                pdf_data = html_to_pdf_weasyprint(html_resume)
+                if pdf_data:
+                    st.download_button(
+                        label="Download PDF",
+                        data=pdf_data,
+                        file_name=f"{st.session_state.current_user}_resume.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
         
-        if st.button("Logout"):
+        st.divider()
+        
+        if st.button("Logout", use_container_width=True):
             st.session_state.user_logged_in = False
             st.session_state.current_user = None
             st.session_state.portfolio_config = None
             st.rerun()
     
-    # Portfolio preview
-    portfolio = st.session_state.portfolio_config
-    
-    st.markdown("# 🎉 Your Portfolio Preview")
+    # Display HTML resume in A4 format
+    st.markdown("# Your Resume (A4 Format)")
     st.markdown("---")
     
-    # Get theme colors
-    colors = portfolio.get("theme", {}).get("colors", {})
-    primary_color = colors.get("primary", "#6366f1")
+    portfolio = st.session_state.portfolio_config
+    html_resume = generate_portfolio_html(portfolio)
     
-    # Header
-    personal_info = portfolio.get("personalInfo", {})
-    st.markdown(f"## {personal_info.get('title', 'Welcome')}")
+    if html_resume:
+        # Display in HTML iframe for better A4 preview
+        st.markdown(
+            f"""
+            <iframe 
+                srcDoc="{html_resume.replace('"', '&quot;')}"
+                style="width: 100%; height: 1200px; border: 1px solid #ccc; border-radius: 8px;"
+            ></iframe>
+            """,
+            unsafe_allow_html=True
+        )
     
-    if personal_info.get("profileImage"):
-        col1, col2 = st.columns([1, 2])
-        with col1:
-            try:
-                st.image(personal_info.get("profileImage"), width=200, caption="Profile")
-            except:
-                st.info("📷 Profile image not found")
-        with col2:
-            st.markdown(f"### {personal_info.get('name', 'Name')}")
-            if personal_info.get("email"):
-                st.write(f"**📧 Email:** {personal_info.get('email')}")
-            if personal_info.get("summary"):
-                st.write(f"**Summary:** {personal_info.get('summary')}")
-            if personal_info.get("about"):
-                st.write(f"**About:** {personal_info.get('about')}")
-    else:
-        st.markdown(f"### {personal_info.get('name', 'Name')}")
-        if personal_info.get("email"):
-            st.write(f"**📧 Email:** {personal_info.get('email')}")
-        if personal_info.get("summary"):
-            st.write(f"**Summary:** {personal_info.get('summary')}")
-        if personal_info.get("about"):
-            st.write(f"**About:** {personal_info.get('about')}")
-    
+    # Also show traditional Streamlit preview below
+    st.markdown("---")
+    st.markdown("## Alternative Preview (Traditional Layout)")
+    st.markdown("---")
     st.markdown("---")
     
     modules = portfolio.get("modules", [])

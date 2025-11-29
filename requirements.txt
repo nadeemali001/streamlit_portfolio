@@ -4,5 +4,5 @@ pillow>=11.0.0
 PyYAML>=6.0.1
 python-dotenv>=1.0.0
 reportlab>=4.0.0
-html2image>=1.9.0
-Pillow-SIMD>=9.0.0
+pdfkit>=1.0.0
+weasyprint>=58.0

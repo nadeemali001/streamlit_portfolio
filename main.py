@@ -385,7 +385,9 @@ def generate_portfolio_html(portfolio_config):
         
         return html
     except Exception as e:
-        st.error(f"Error generating HTML: {str(e)}")
+        import traceback
+        error_msg = f"Error generating HTML: {str(e)}\n\n{traceback.format_exc()}"
+        st.error(error_msg)
         return None
 
 

@@ -278,13 +278,9 @@ def generate_portfolio_html(portfolio_config):
                 html += '<div class="section">'
                 html += '<div class="section-title">EXPERIENCE</div>'
                 for exp in experience.get("items", []):
-                    html += f'''
-                    <div class="item">
-                        <div class="item-title">{exp.get('title', 'N/A')} @ {exp.get('company', 'N/A')}</div>
-                        <div class="item-subtitle">{exp.get('period', 'N/A')}</div>
-                        <div class="item-description">
-                            <ul>
-                    '''
+                    html += '<div class="item"><div class="item-title">' + exp.get('title', 'N/A') + ' @ ' + exp.get('company', 'N/A') + '</div>'
+                    html += '<div class="item-subtitle">' + exp.get('period', 'N/A') + '</div>'
+                    html += '<div class="item-description"><ul>'
                     for desc in exp.get("description", []):
                         html += f'<li>{desc}</li>'
                     html += '</ul></div></div>'

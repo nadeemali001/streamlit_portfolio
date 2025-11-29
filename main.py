@@ -58,6 +58,18 @@ def html_to_pdf_weasyprint(html_string):
 def generate_portfolio_html(portfolio_config):
     """Generate full HTML resume from portfolio configuration"""
     try:
+        import html as html_lib
+        
+        def escape_html(text):
+            """Escape special HTML characters and newlines"""
+            if not text:
+                return ""
+            text = str(text)
+            text = html_lib.escape(text)
+            text = text.replace('\n', '<br>')
+            text = text.replace('\r', '')
+            return text
+        
         personal_info = portfolio_config.get("personalInfo", {})
         modules = portfolio_config.get("modules", [])
         
@@ -258,18 +270,18 @@ def generate_portfolio_html(portfolio_config):
                     <div class="contact-info">{contact_info}</div>
                 </div>
         """.format(
-            name=personal_info.get('name', 'Your Name'),
-            title=personal_info.get('title', 'Professional'),
-            contact_info=' | '.join([
+            name=escape_html(personal_info.get('name', 'Your Name')),
+            title=escape_html(personal_info.get('title', 'Professional')),
+            contact_info=escape_html(' | '.join([
                 f"{personal_info.get('email')}" if personal_info.get('email') else '',
                 f"{personal_info.get('phone')}" if personal_info.get('phone') else ''
-            ]).replace(' | |', ' | ').strip(' |')
+            ]).replace(' | |', ' | ').strip(' |'))
         )
         
         # Summary Section
         if personal_info.get('summary') or personal_info.get('about'):
             summary = personal_info.get('summary') or personal_info.get('about')
-            html += f'<div class="section"><div class="summary">{summary}</div></div>'
+            html += '<div class="section"><div class="summary">' + escape_html(summary) + '</div></div>'
         
         # Experience
         if "experience" in modules:
@@ -278,11 +290,11 @@ def generate_portfolio_html(portfolio_config):
                 html += '<div class="section">'
                 html += '<div class="section-title">EXPERIENCE</div>'
                 for exp in experience.get("items", []):
-                    html += '<div class="item"><div class="item-title">' + exp.get('title', 'N/A') + ' @ ' + exp.get('company', 'N/A') + '</div>'
-                    html += '<div class="item-subtitle">' + exp.get('period', 'N/A') + '</div>'
+                    html += '<div class="item"><div class="item-title">' + escape_html(exp.get('title', 'N/A')) + ' @ ' + escape_html(exp.get('company', 'N/A')) + '</div>'
+                    html += '<div class="item-subtitle">' + escape_html(exp.get('period', 'N/A')) + '</div>'
                     html += '<div class="item-description"><ul>'
                     for desc in exp.get("description", []):
-                        html += f'<li>{desc}</li>'
+                        html += '<li>' + escape_html(desc) + '</li>'
                     html += '</ul></div></div>'
                 html += '</div>'
         
@@ -295,12 +307,12 @@ def generate_portfolio_html(portfolio_config):
                 for category in skills.get("categories", []):
                     cat_title = category.get('title', 'Skills')
                     items = category.get('items', '')
-                    html += '<div class="skill-category"><div class="skill-category-title">' + cat_title + '</div><div class="skills-container">'
+                    html += '<div class="skill-category"><div class="skill-category-title">' + escape_html(cat_title) + '</div><div class="skills-container">'
                     if items:
                         for skill in items.split(','):
                             skill = skill.strip()
                             if skill:
-                                html += f'<span class="skill-badge">{skill}</span>'
+                                html += '<span class="skill-badge">' + escape_html(skill) + '</span>'
                     html += '</div></div>'
                 html += '</div>'
         
@@ -310,11 +322,11 @@ def generate_portfolio_html(portfolio_config):
             if projects.get("items"):
                 html += '<div class="section"><div class="section-title">PROJECTS</div>'
                 for project in projects.get("items", []):
-                    html += '<div class="item"><div class="item-title">' + project.get('title', 'N/A') + '</div>'
+                    html += '<div class="item"><div class="item-title">' + escape_html(project.get('title', 'N/A')) + '</div>'
                     if project.get('url'):
-                        html += '<div class="item-subtitle">' + project.get("url") + '</div>'
+                        html += '<div class="item-subtitle">' + escape_html(project.get("url")) + '</div>'
                     if project.get('description'):
-                        html += '<div class="item-description">' + project.get("description") + '</div>'
+                        html += '<div class="item-description">' + escape_html(project.get("description")) + '</div>'
                     html += '</div>'
                 html += '</div>'
         
@@ -324,10 +336,10 @@ def generate_portfolio_html(portfolio_config):
             if education.get("items"):
                 html += '<div class="section"><div class="section-title">EDUCATION</div>'
                 for edu in education.get("items", []):
-                    html += '<div class="item"><div class="item-title">' + edu.get('title', 'N/A') + '</div>'
-                    html += '<div class="item-subtitle">' + edu.get('period', 'N/A') + '</div>'
+                    html += '<div class="item"><div class="item-title">' + escape_html(edu.get('title', 'N/A')) + '</div>'
+                    html += '<div class="item-subtitle">' + escape_html(edu.get('period', 'N/A')) + '</div>'
                     if edu.get('description'):
-                        html += '<div class="item-description">' + edu.get("description") + '</div>'
+                        html += '<div class="item-description">' + escape_html(edu.get("description")) + '</div>'
                     html += '</div>'
                 html += '</div>'
         
@@ -337,10 +349,10 @@ def generate_portfolio_html(portfolio_config):
             if certificates.get("items"):
                 html += '<div class="section"><div class="section-title">CERTIFICATES</div>'
                 for cert in certificates.get("items", []):
-                    html += '<div class="item"><div class="item-title">' + cert.get('title', 'N/A') + '</div>'
-                    html += '<div class="item-subtitle">Issuer: ' + cert.get('issuer', 'N/A') + '</div>'
+                    html += '<div class="item"><div class="item-title">' + escape_html(cert.get('title', 'N/A')) + '</div>'
+                    html += '<div class="item-subtitle">Issuer: ' + escape_html(cert.get('issuer', 'N/A')) + '</div>'
                     if cert.get('date'):
-                        html += '<div class="item-subtitle">Date: ' + cert.get("date") + '</div>'
+                        html += '<div class="item-subtitle">Date: ' + escape_html(cert.get("date")) + '</div>'
                     html += '</div>'
                 html += '</div>'
         
@@ -353,7 +365,7 @@ def generate_portfolio_html(portfolio_config):
                 name = link.get('name', '').lower()
                 url = link.get('url', '#')
                 icon = platform_icons.get(name, '🔗')
-                html += f'<a href="{url}" class="social-link"><span class="social-icon">{icon}</span> {link.get("name")}</a>'
+                html += '<a href="' + escape_html(url) + '" class="social-link"><span class="social-icon">' + icon + '</span> ' + escape_html(link.get("name")) + '</a>'
             html += '</div></div>'
         
         # Footer

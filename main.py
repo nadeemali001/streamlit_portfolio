@@ -928,16 +928,10 @@ def portfolio_preview_page():
     html_resume = generate_portfolio_html(portfolio)
     
     if html_resume:
-        # Display in HTML iframe for better A4 preview
-        st.markdown(
-            f"""
-            <iframe 
-                srcDoc="{html_resume.replace('"', '&quot;')}"
-                style="width: 100%; height: 1200px; border: 1px solid #ccc; border-radius: 8px;"
-            ></iframe>
-            """,
-            unsafe_allow_html=True
-        )
+        # Display using Streamlit's HTML component
+        st.components.v1.html(html_resume, height=1200, scrolling=True)
+    else:
+        st.error("Failed to generate HTML resume")
     
     # Also show traditional Streamlit preview below
     st.markdown("---")

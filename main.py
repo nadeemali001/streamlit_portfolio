@@ -1120,21 +1120,21 @@ def portfolio_preview_page():
             "medium": "✍️"
             }
         
-        # Create social links with icons and text
+        # Create social links with icons and visible URLs (format: icon: url)
+        import html as _html
         social_links_html = ""
         for link in portfolio.get("socialLinks", []):
             name = link.get('name', '').lower()
-            url = link.get('url', '#')
-            
+            url = (link.get('url') or '#').strip()
             # Get icon based on platform name
             icon = platform_icons.get(name, "🔗")
-            link_text = link.get('name', 'Link')
-            
-            social_links_html += f'<a href="{url}" style="display: inline-block; margin: 8px 12px; padding: 8px 12px; text-decoration: none; color: #4f46e5; border: 1px solid #e0e7ff; border-radius: 6px; background-color: #f8fafc;" title="{link_text}"><span style="margin-right: 6px;">{icon}</span>{link_text}</a>'
-        
-        
+            # Visible text should be the URL (escaped for HTML). For href we keep the original url but safely escape quotes.
+            visible = _html.escape(url)
+            href = url.replace('"', '%22')
+            social_links_html += f'<div style="margin:6px 0; text-align:center;"><span style="margin-right:8px;">{icon}</span>: <a href="{href}" target="_blank" rel="noopener noreferrer">{visible}</a></div>'
+
         if social_links_html:
-            st.markdown(f'<div style="text-align: center;">{social_links_html}</div>', unsafe_allow_html=True)
+            st.markdown(social_links_html, unsafe_allow_html=True)
     
     # Footer
     st.markdown("---")

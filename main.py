@@ -57,6 +57,24 @@ def generate_portfolio_html(portfolio_config):
         
         personal_info = portfolio_config.get("personalInfo", {})
         modules = portfolio_config.get("modules", [])
+
+        # Prepare profile image (embed as data URI so the HTML preview displays correctly)
+        profile_img_tag = ""
+        try:
+            profile_path = personal_info.get('profileImage')
+            if profile_path:
+                import base64, mimetypes, pathlib
+                p = pathlib.Path(profile_path)
+                if p.is_file():
+                    mime, _ = mimetypes.guess_type(str(p))
+                    if not mime:
+                        mime = 'image/png'
+                    with open(p, 'rb') as imgf:
+                        b = base64.b64encode(imgf.read()).decode('utf-8')
+                    profile_img_tag = f'<img src="data:{mime};base64,{b}" class="profile-photo" alt="Profile photo"/>'
+        except Exception:
+            # non-fatal: if embedding fails, leave empty and continue
+            profile_img_tag = ""
         
         # Platform icon mapping
         platform_icons = {
@@ -136,6 +154,16 @@ def generate_portfolio_html(portfolio_config):
                     font-size: 12px;
                     color: #475569;
                     margin-bottom: 5px;
+                }}
+                
+                .profile-photo {{
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 3px solid #4f46e5;
+                    margin: 10px auto;
+                    display: block;
                 }}
                 
                 .section {{
@@ -261,6 +289,7 @@ def generate_portfolio_html(portfolio_config):
             <div class="resume-container">
                 <!-- Header -->
                 <div class="header">
+                    {profile_img}
                     <div class="name">{name}</div>
                     <div class="title">{title}</div>
                     <div class="contact-info">{contact_info}</div>
@@ -272,6 +301,8 @@ def generate_portfolio_html(portfolio_config):
                 f"{personal_info.get('email')}" if personal_info.get('email') else '',
                 f"{personal_info.get('phone')}" if personal_info.get('phone') else ''
             ]).replace(' | |', ' | ').strip(' |'))
+                ,
+                profile_img=profile_img_tag
         )
         
         # Summary Section
@@ -930,6 +961,14 @@ def portfolio_preview_page():
     # Personal Info
     personal_info = portfolio.get("personalInfo", {})
     if personal_info:
+        # Show profile image if available
+        profile_image = personal_info.get('profileImage')
+        if profile_image:
+            try:
+                st.image(profile_image, width=150)
+            except Exception:
+                st.warning("Could not load profile image")
+
         st.markdown(f"# {personal_info.get('name', 'Your Name')}")
         if personal_info.get('title'):
             st.markdown(f"## {personal_info.get('title')}")

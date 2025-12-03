@@ -93,6 +93,41 @@ def generate_portfolio_html(portfolio_config):
             "reddit": "👽",
         }
         
+        # Choose template
+        template_key = portfolio_config.get('theme', {}).get('template', 'modern')
+
+        # Build header HTML depending on template
+        if template_key == 'classic':
+            # Two-column header: image left, name/title right
+            header_html = (
+                '<div class="header" style="display:flex;align-items:center;gap:20px;">'
+                f'<div style="flex:0 0 120px;">{profile_img_tag}</div>'
+                '<div style="flex:1;text-align:left;">'
+                f'<div class="name">{escape_html(personal_info.get("name", "Your Name"))}</div>'
+                f'<div class="title">{escape_html(personal_info.get("title", "Professional"))}</div>'
+                f'<div class="contact-info">{escape_html(" | ".join([personal_info.get("email", ""), personal_info.get("phone", "")]).strip(" |"))}</div>'
+                '</div></div>'
+            )
+        elif template_key == 'compact':
+            # Compact: small photo inline, smaller fonts
+            header_html = (
+                '<div class="header" style="text-align:left;padding-bottom:8px;">'
+                f'<div style="float:left;margin-right:12px;width:72px;">{profile_img_tag}</div>'
+                f'<div class="name" style="font-size:22px;">{escape_html(personal_info.get("name", "Your Name"))}</div>'
+                f'<div class="title" style="font-size:12px;color:#64748b;">{escape_html(personal_info.get("title", "Professional"))}</div>'
+                '<div style="clear:both;"></div></div>'
+            )
+        else:
+            # Modern (default): centered image, name, title
+            header_html = (
+                '<div class="header">'
+                f'{profile_img_tag}'
+                f'<div class="name">{escape_html(personal_info.get("name", "Your Name"))}</div>'
+                f'<div class="title">{escape_html(personal_info.get("title", "Professional"))}</div>'
+                f'<div class="contact-info">{escape_html(" | ".join([personal_info.get("email", ""), personal_info.get("phone", "")]).strip(" |"))}</div>'
+                '</div>'
+            )
+
         html = """
         <!DOCTYPE html>
         <html>
@@ -286,23 +321,11 @@ def generate_portfolio_html(portfolio_config):
             </style>
         </head>
         <body>
-            <div class="resume-container">
-                <!-- Header -->
-                <div class="header">
-                    {profile_img}
-                    <div class="name">{name}</div>
-                    <div class="title">{title}</div>
-                    <div class="contact-info">{contact_info}</div>
-                </div>
+                <div class="resume-container">
+                    <!-- Header -->
+                    {header_html}
         """.format(
-            name=escape_html(personal_info.get('name', 'Your Name')),
-            title=escape_html(personal_info.get('title', 'Professional')),
-            contact_info=escape_html(' | '.join([
-                f"{personal_info.get('email')}" if personal_info.get('email') else '',
-                f"{personal_info.get('phone')}" if personal_info.get('phone') else ''
-            ]).replace(' | |', ' | ').strip(' |'))
-                ,
-                profile_img=profile_img_tag
+            header_html=header_html
         )
         
         # Summary Section

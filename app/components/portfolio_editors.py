@@ -609,5 +609,14 @@ def theme_editor(portfolio_config):
         "secondary": secondary,
         "accent": accent
     })
+    # Template selection
+    templates = {
+        "modern": "Modern (clean, colored header)",
+        "classic": "Classic (two-column, serif)",
+        "compact": "Compact (dense, single-column)"
+    }
+    current = portfolio_config.get("theme", {}).get("template", "modern")
+    template_choice = st.selectbox("Resume Template", options=list(templates.keys()), format_func=lambda k: templates[k], index=list(templates.keys()).index(current) if current in templates else 0, key="theme_template")
+    portfolio_config["theme"]["template"] = template_choice
     
     return portfolio_config

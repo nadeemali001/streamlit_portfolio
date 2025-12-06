@@ -29,6 +29,35 @@ class AuthManager:
         """Save users to JSON file"""
         with open(self.users_file, 'w') as f:
             json.dump(self.users, f, indent=2)
+
+    def _user_file(self, username):
+        """Return Path for the per-user JSON file: {username}_data.json"""
+        safe_name = str(username)
+        return self.data_dir / f"{safe_name}_data.json"
+
+    def _load_user_file_into_users(self, username):
+        """If per-user file exists, load its portfolio_config into self.users entry.
+
+        This keeps per-user files as the single source of truth for portfolio data while
+        keeping credentials in users.json.
+        """
+        if not self.user_exists(username):
+            return
+        user_file = self._user_file(username)
+        if user_file.exists():
+            try:
+                with open(user_file, 'r') as f:
+                    data = json.load(f)
+                # Per-user file may contain the full user record or just portfolio_config
+                if isinstance(data, dict):
+                    if 'portfolio_config' in data:
+                        self.users[username]['portfolio_config'] = data.get('portfolio_config')
+                    else:
+                        # assume entire file is the portfolio_config
+                        self.users[username]['portfolio_config'] = data
+            except Exception:
+                # ignore per-user file load errors; keep users.json data
+                pass
     
     @staticmethod
     def hash_password(password):
@@ -75,6 +104,14 @@ class AuthManager:
             }
         }
         self._save_users()
+        # Also write per-user data file for easier export/import and separate storage
+        try:
+            user_file = self._user_file(username)
+            with open(user_file, 'w') as f:
+                json.dump(self.users[username].get('portfolio_config', {}), f, indent=2)
+        except Exception:
+            # non-fatal
+            pass
         return True, "User registered successfully"
     
     def authenticate(self, username, password):
@@ -85,20 +122,41 @@ class AuthManager:
         if self.users[username]["password"] != self.hash_password(password):
             return False, "Incorrect password"
         
+        # After authentication, attempt to refresh portfolio_config from per-user file
+        try:
+            self._load_user_file_into_users(username)
+        except Exception:
+            pass
+
         return True, "Authentication successful"
     
     def get_user_portfolio(self, username):
         """Get user's portfolio configuration"""
         if not self.user_exists(username):
             return None
+        # Prefer per-user file as source of truth if present
+        self._load_user_file_into_users(username)
         return self.users[username].get("portfolio_config", {})
     
     def update_user_portfolio(self, username, portfolio_config):
         """Update user's portfolio configuration"""
         if self.user_exists(username):
             self.users[username]["portfolio_config"] = portfolio_config
-            self._save_users()
+            # Save into central users.json and also into per-user file
+            try:
+                self._save_users()
+            except Exception:
+                pass
+
+            try:
+                user_file = self._user_file(username)
+                with open(user_file, 'w') as f:
+                    json.dump(portfolio_config, f, indent=2)
+            except Exception:
+                pass
+
             return True
+        return False
         return False
     
     def get_user_info(self, username):

@@ -693,6 +693,57 @@ def generate_portfolio_pdf(portfolio_config):
         return None
 
 
+def merge_and_validate_portfolio(existing, new_portfolio):
+    """Merge an uploaded portfolio JSON with sensible defaults and perform light validation.
+
+    Returns (merged_portfolio, warnings)
+    """
+    warnings = []
+    try:
+        # Ensure we always have a base structure
+        username = existing.get('personalInfo', {}).get('name') if existing else None
+        email = None
+        if isinstance(new_portfolio, dict):
+            email = new_portfolio.get('personalInfo', {}).get('email') if new_portfolio.get('personalInfo') else None
+
+        default = PortfolioManager.create_default_portfolio(username or 'user', email or '')
+
+        # Start with default then overlay uploaded data
+        merged = default
+
+        # Overlay keys from uploaded JSON (shallow merge is intentional)
+        for key, val in (new_portfolio or {}).items():
+            merged[key] = val
+
+        # Ensure modules contains at least the required personal_info
+        modules = merged.get('modules', []) or []
+        if 'personal_info' not in modules:
+            modules.insert(0, 'personal_info')
+        merged['modules'] = modules
+
+        # Basic validations using PortfolioManager helpers where available
+        if merged.get('personalInfo'):
+            ok, msg = PortfolioManager.validate_personal_info(merged.get('personalInfo'))
+            if not ok:
+                warnings.append(msg)
+
+        # Experience
+        if merged.get('experience') and merged['experience'].get('items'):
+            ok, msg = PortfolioManager.validate_experience(merged['experience'].get('items'))
+            if not ok:
+                warnings.append(msg)
+
+        # Skills
+        if merged.get('skills') and merged['skills'].get('categories'):
+            ok, msg = PortfolioManager.validate_skills(merged['skills'].get('categories'))
+            if not ok:
+                warnings.append(msg)
+
+        return merged, warnings
+    except Exception as e:
+        return existing or {}, [f"Failed to merge uploaded portfolio: {e}"]
+
+
 # Page configuration
 st.set_page_config(
     page_title="Portfolio Builder",
@@ -813,6 +864,27 @@ def portfolio_editor_page():
         
         st.markdown("---")
         
+        # Import JSON uploader - allows user to upload a portfolio JSON and load it into the editor
+        st.subheader("Import / Export")
+        uploaded_file = st.file_uploader("Upload portfolio JSON", type=["json"], key="upload_portfolio_json")
+        if uploaded_file is not None:
+            try:
+                # st.file_uploader returns a BytesIO-like object; parse JSON
+                uploaded_json = json.load(uploaded_file)
+                st.markdown("**Preview of uploaded JSON**")
+                st.json(uploaded_json)
+
+                if st.button("Load uploaded JSON into Editor", use_container_width=True, key="load_uploaded_json"):
+                    merged, warnings = merge_and_validate_portfolio(st.session_state.portfolio_config or {}, uploaded_json)
+                    st.session_state.portfolio_config = merged
+                    if warnings:
+                        for w in warnings:
+                            st.warning(w)
+                    st.success("Uploaded portfolio loaded into editor")
+                    st.rerun()
+            except Exception as e:
+                st.error(f"Failed to parse uploaded JSON: {e}")
+
         if st.button("💾 Save Portfolio", use_container_width=True, type="primary"):
             auth_manager = st.session_state.auth_manager
             success = auth_manager.update_user_portfolio(
